@@ -4,42 +4,28 @@ import MovieCard from "./MovieCard";
 import SearchIcon from "./search.svg";
 import "./App.css";
 
-const API_URL = "https://www.omdbapi.com?apikey=b6003d8a";
+const API_URL = "http://www.omdbapi.com?apikey=b6003d8a";
 
 const App = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [movies, setMovies] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  // Press Enter to Search
-  const handleKeyPress = (e) => {
-    if (e.keyCode === 13) {
-      searchMovies(searchTerm);
-    }
-  };
-
   useEffect(() => {
     searchMovies("Harry Potter");
   }, []);
 
   const searchMovies = async (title) => {
-    try {
-      // Set loading to true before making the API call
-      setLoading(true);
+    setLoading(true);
+    const response = await fetch(`${API_URL}&s=${title}`);
+    const data = await response.json();
+    setMovies(data.Search);
+    setLoading(false);
+  };
 
-      const response = await fetch(`${API_URL}&s=${title}`);
-      const data = await response.json();
-
-      // Set movies and turn off loading when API call is successful
-      setMovies(data.Search);
-    } catch (error) {
-      // Handle errors if the API call fails
-      console.error("Error fetching data:", error);
-    } finally {
-      // Delay the turning off of loading by .1 seconds
-      setTimeout(() => {
-        setLoading(false);
-      }, 100);
+  const handleSearch = (e) => {
+    if (e.key === "Enter") {
+      searchMovies(searchTerm);
     }
   };
 
@@ -51,8 +37,8 @@ const App = () => {
         <input
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
+          onKeyDown={handleSearch}
           placeholder="Search for movies"
-          onKeyPress={handleKeyPress}
         />
         <img
           src={SearchIcon}
@@ -81,3 +67,4 @@ const App = () => {
 };
 
 export default App;
+
